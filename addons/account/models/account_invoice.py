@@ -733,6 +733,17 @@ class AccountInvoice(models.Model):
         account_move = self.env['account.move']
 
         for inv in self:
+            seq_id = self.env['ir.sequence'].search([('code','=','inv.seq')])
+            self.env.cr.execute("SELECT last_value + increment_by FROM ir_sequence_%03d;" % seq_id)
+            array = self.env.cr.fetchone()
+            number_next = int(array[0])
+
+            company = self.env.user.company_ids
+            range_from = company.x_from_folio
+            range_to = company.x_to_folio
+            
+            if (number_next < range_from or number_next > range_to):
+                raise UserError(_('El Numero de folio no es valido'))
             if not inv.journal_id.sequence_id:
                 raise UserError(_('Please define sequence on the journal related to this invoice.'))
             if not inv.invoice_line_ids:

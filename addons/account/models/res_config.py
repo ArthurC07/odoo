@@ -269,3 +269,18 @@ class AccountConfigSettings(models.TransientModel):
             'res_id': self.env.user.company_id.id,
             'target': 'current',
         }
+
+    @api.model
+    def get_default_rangevalues(self, fields):
+        company = self.env.user.company_id
+
+        return {
+            'x_from_folio': company.x_from_folio,
+            'x_to_folio': company.x_to_folio
+        }
+    
+    @api.one
+    def set_range_values(self):
+        company = self.env.user.company_id
+        company.x_from_folio = self.x_from_folio
+        company.x_to_folio = self.x_to_folio
